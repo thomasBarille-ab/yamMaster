@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
+import Board from "../components/board/board.component";
 
 
-export default function OnlineGameController() {
+export default function OnlineGameController({navigation}) {
 
     const socket = useContext(SocketContext);
 
@@ -17,6 +18,7 @@ export default function OnlineGameController() {
             console.log('[emit][queue.cancel]');
         }
         setInQueue(false);
+        // navigation.navigate('Home');
     }, [socket]);
 
     useEffect(() => {
@@ -42,6 +44,7 @@ export default function OnlineGameController() {
             console.log('[listen][queue.cancelled]:', data);
             setInQueue(false);  // Confirmation du serveur que l'utilisateur a été retiré de la file
             alert('You have been removed from the queue.');
+            navigation.navigate('HomeScreen');
         });
 
     }, []);
@@ -67,18 +70,7 @@ export default function OnlineGameController() {
 
             {inGame && (
                 <>
-                    <Text style={styles.paragraph}>
-                        Game found !
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        Player - {socket.id} -
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        - vs -
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        Player - {idOpponent} -
-                    </Text>
+                    <Board/>
                 </>
             )}
         </View>

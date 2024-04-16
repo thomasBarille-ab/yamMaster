@@ -14,6 +14,11 @@ let queue = [];
 // -------- GAME METHODS -----------
 // ---------------------------------
 
+const updateViewPlayerTimer = (games) => {
+    games[gameIndex].player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', games[gameIndex].gameState));
+    games[gameIndex].player2Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:2', games[gameIndex].gameState));
+}
+
 const newPlayerInQueue = (socket) => {
 
     queue.push(socket);
@@ -40,42 +45,66 @@ const createGame = (player1Socket, player2Socket) => {
 
     const gameIndex = GameService.utils.findGameIndexById(games, newGame.idGame);
 
+    const gameInterval = setInterval(() => {
+
+        games[gameIndex].gameState.timer--;
+
+        // Si le timer tombe à zéro
+        if (games[gameIndex].gameState.timer === 0) {
+
+            // On change de tour en inversant le clé dans 'currentTurn'
+            games[gameIndex].gameState.currentTurn = games[gameIndex].gameState.currentTurn === 'player:1' ? 'player:2' : 'player:1';
+
+            // Méthode du service qui renvoie la constante 'TURN_DURATION'
+            games[gameIndex].gameState.timer = GameService.timer.getTurnDuration();
+        }    
+
+        updateViewPlayerTimer(games[gameIndex]);
+
+    }, 1000);
+
+    // On prévoit de couper l'horloge
+    // pour le moment uniquement quand le socket se déconnecte
+    player1Socket.on('disconnect', () => {
+        clearInterval(gameInterval);
+    });
+
+    player2Socket.on('disconnect', () => {
+        clearInterval(gameInterval);
+    });
+
     games[gameIndex].player1Socket.emit('game.start', GameService.send.forPlayer.viewGameState('player:1', games[gameIndex]));
     games[gameIndex].player2Socket.emit('game.start', GameService.send.forPlayer.viewGameState('player:2', games[gameIndex]));
 };
 
-const cancelQueue = (socket) => {
-  const index = queue.indexOf(socket);
-  if (index > -1) {
-      queue.splice(index, 1);
-      console.log(`[${socket.id}] removed from queue`);
-  }
-  
-  socket.emit('queue.cancelled', { message: 'You have been removed from the queue.' });
-};
+const removePlayerFromQueue = (socket) => {
+    // TODO: fixme, emit is not a function
+    const indexOfSocket = queue.indexOf(socket)
+    queue.splice(indexOfSocket, 1);
+
+}
 
 // ---------------------------------------
 // -------- SOCKETS MANAGEMENT -----------
 // ---------------------------------------
 
 io.on('connection', socket => {
-  console.log(`[${socket.id}] socket connected`);
+    console.log(`[${socket.id}] socket connected`);
 
-  socket.on('queue.join', () => {
-      console.log(`[${socket.id}] new player in queue`);
-      newPlayerInQueue(socket);
-  });
+    socket.on('queue.join', () => {
+        console.log(`[${socket.id}] new player in queue `);
+        newPlayerInQueue(socket);
+    });
 
-  socket.on('queue.cancel', () => {
-      console.log(`[${socket.id}] player cancelled queue`);
-      cancelQueue(socket);
-  });
+    socket.on('queue.leave', () => {
+        console.log(`[${socket.id}] left the queue`);
+        removePlayerFromQueue(socket);
+        socket.emit("game.leave", GameService.send.forPlayer.viewQueueState());
+    })
 
-  socket.on('disconnect', reason => {
-      console.log(`[${socket.id}] socket disconnected - ${reason}`);
-      cancelQueue(socket);
-      navigation.navigate('Home');
-  });
+    socket.on('disconnect', reason => {
+        console.log(`[${socket.id}] socket disconnected - ${reason}`);
+    });
 });
 
 // -----------------------------------
