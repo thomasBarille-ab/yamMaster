@@ -109,6 +109,15 @@ const GameService = {
                     dices: gameState.deck.dices 
                 }; 
                 return deckViewState; 
+            },
+            choicesViewState: (playerKey, gameState) => { 
+                const choicesViewState = { 
+                    displayChoices: gameState.currentTurn === playerKey, 
+                    canMakeChoice: gameState.currentTurn === playerKey, 
+                    idSelectedChoice: gameState.choices.idSelectedChoice, 
+                    availableChoices: gameState.choices.availableChoices 
+                }; 
+                return choicesViewState; 
             }
         }
     },
@@ -168,8 +177,14 @@ const GameService = {
             let hasFourOfAKind = false; // check: carré 
             let hasFiveOfAKind = false; // check: yam 
             let hasStraight = false; // check: suite 
-            let sum = dices.reduce((a, b) => a + b, 0);
+            let sum = 0;
             let isLessThanEqual8 = sum <= 8; // check: ≤8
+
+            // Calculer la somme en utilisant une boucle
+            for (let i = 0; i < dices.length; i++) {
+                sum += dices[i];
+                counts[dices[i]]++; // Augmente le compteur pour la valeur de dé actuelle
+            }
  
             // Check for pairs, three of a kind, four of a kind, yam
             counts.forEach((count, index) => {

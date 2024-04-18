@@ -51,7 +51,7 @@ const createGame = (player1Socket, player2Socket) => {
         const combinations = GameService.choices.findCombinations(dices, isDefi, isSec);
 
         games[gameIndex].gameState.choices.availableChoices = combinations;
-        updateClientsViewChoices(games[gameIndex]);
+        updateViewPlayerChoices(games[gameIndex]);
         gameState.timer--;
         if (gameState.timer === 0) {
             gameState.currentTurn = gameState.currentTurn === 'player:1' ? 'player:2' : 'player:1';
@@ -104,7 +104,7 @@ io.on('connection', socket => {
         const gameIndex = GameService.utils.findGameIndexBySocketId(games, socket.id); 
         games[gameIndex].gameState.choices.idSelectedChoice = data.choiceId; 
      
-        updateClientsViewChoices(games[gameIndex]); 
+        updateViewPlayerChoices(games[gameIndex]); 
     });
 });
 
