@@ -15,6 +15,29 @@ const GAME_INIT = {
     }
 }
 
+const CHOICES_INIT = { 
+    isDefi: false, 
+    isSec: false, 
+    idSelectedChoice: null, 
+    availableChoices: [], 
+};
+
+const ALL_COMBINATIONS = [ 
+    { value: 'Brelan1', id: 'brelan1' }, 
+    { value: 'Brelan2', id: 'brelan2' }, 
+    { value: 'Brelan3', id: 'brelan3' }, 
+    { value: 'Brelan4', id: 'brelan4' }, 
+    { value: 'Brelan5', id: 'brelan5' }, 
+    { value: 'Brelan6', id: 'brelan6' }, 
+    { value: 'Full', id: 'full' }, 
+    { value: 'Carré', id: 'carre' }, 
+    { value: 'Yam', id: 'yam' }, 
+    { value: 'Suite', id: 'suite' }, 
+    { value: '≤8', id: 'moinshuit' }, 
+    { value: 'Sec', id: 'sec' }, 
+    { value: 'Défi', id: 'defi' } 
+];
+
 const DECK_INIT = { 
     dices: [ 
         { id: 1, value: '', locked: true }, 
@@ -34,12 +57,16 @@ const GameService = {
         gameState: () => { 
             const game = { ...GAME_INIT }; 
             game['gameState']['timer'] = TURN_DURATION; 
-            game['gameState']['deck'] = { ...DECK_INIT }; 
+            game['gameState']['deck'] = { ...DECK_INIT };
+            game['gameState']['choices'] = { ...CHOICES_INIT };  
             return game; 
         },
         deck: () => {
             return {...DECK_INIT};
-        }
+        },
+        choices: () => {
+            return { ...CHOICES_INIT };
+        },
     },
     send: {
         forPlayer: {
@@ -122,6 +149,47 @@ const GameService = {
                 locked: true 
             })); 
             return lockedDices; 
+        } 
+    },
+    choices: { 
+        findCombinations: (dices, isDefi, isSec) => { 
+ 
+            const allCombinations = ALL_COMBINATIONS; 
+ 
+            // Tableau des objets 'combinations' disponibles parmi 'ALL_COMBINATIONS' 
+            const availableCombinations = []; 
+ 
+            // Tableau pour compter le nombre de dés de chaque valeur (de 1 à 6) 
+            const counts = Array(7).fill(0); 
+ 
+            let hasPair = false; // check: paire 
+            let threeOfAKindValue = null; // check: valeur brelan 
+            let hasThreeOfAKind = false; // check: brelan 
+            let hasFourOfAKind = false; // check: carré 
+            let hasFiveOfAKind = false; // check: yam 
+            let hasStraight = false; // check: suite 
+            let sum = 0; // sum of dices 
+ 
+            // ----------------------------------- 
+            // TODO: Vérifier les combinaisons possibles 
+            // ----------------------------------- 
+ 
+            // return available combinations
+            allCombinations.forEach(combination => { 
+                    if ( 
+                        (combination.id.includes('brelan') && hasThreeOfAKind && parseInt(combination.id.slice(-1))) ||
+                        (combination.id === 'full' && hasPair && hasThreeOfAKind) || 
+                        (combination.id === 'carre' && hasFourOfAKind) || 
+                        (combination.id === 'yam' && hasFiveOfAKind) || 
+                        (combination.id === 'suite' && hasStraight) || 
+                        (combination.id === 'moinshuit' && isLessThanEqual8) || 
+                        (combination.id === 'defi' && isDefi) 
+                    ) { 
+                        availableCombinations.push(combination); 
+                    } 
+                }); 
+ 
+            return availableCombinations; 
         } 
     },
     utils: {

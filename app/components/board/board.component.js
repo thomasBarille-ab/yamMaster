@@ -3,7 +3,7 @@ import React from "react";
 import { View, Text, StyleSheet } from 'react-native'; 
 import PlayerTimer from '../timers/player-timer.component';
 import OpponentTimer from '../timers/opponent-timer.component';
-import OpponentDeck from "./decks/opponenet-deck.component";
+import OpponentDeck from "./decks/opponent-deck.component";
 import PlayerDeck from "./decks/player-deck.component";
  
 const OpponentInfos = () => { 
