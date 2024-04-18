@@ -168,12 +168,25 @@ const GameService = {
             let hasFourOfAKind = false; // check: carré 
             let hasFiveOfAKind = false; // check: yam 
             let hasStraight = false; // check: suite 
-            let sum = 0; // sum of dices 
+            let sum = dices.reduce((a, b) => a + b, 0);
+            let isLessThanEqual8 = sum <= 8; // check: ≤8
  
-            // ----------------------------------- 
-            // TODO: Vérifier les combinaisons possibles 
-            // ----------------------------------- 
- 
+            // Check for pairs, three of a kind, four of a kind, yam
+            counts.forEach((count, index) => {
+                if (count >= 2) hasPair = true;
+                if (count >= 3) {
+                    hasThreeOfAKind = true;
+                    threeOfAKindValue = index;
+                }
+                if (count >= 4) hasFourOfAKind = true;
+                if (count == 5) hasFiveOfAKind = true;
+            });
+
+            // Check for straight (small or large)
+            if (counts.slice(1, 6).every(c => c === 1) || counts.slice(2, 7).every(c => c === 1)) {
+                hasStraight = true;
+            }
+
             // return available combinations
             allCombinations.forEach(combination => { 
                     if ( 
