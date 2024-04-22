@@ -5,6 +5,8 @@ import PlayerTimer from '../timers/player-timer.component';
 import OpponentTimer from '../timers/opponent-timer.component';
 import OpponentDeck from "./decks/opponent-deck.component";
 import PlayerDeck from "./decks/player-deck.component";
+import Grid from "./grid/grid.component";
+import Choices from "./choices/choices.component";
  
 const OpponentInfos = () => { 
   return ( 
@@ -21,24 +23,6 @@ const OpponentScore = () => {
     </View> 
   ); 
 };  
- 
-const Grid = () => { 
- 
-  return ( 
-    <View style={styles.gridContainer}> 
-      <Text>Grid</Text> 
-    </View> 
-  ); 
-}; 
- 
-const Choices = () => { 
- 
-  return ( 
-    <View style={styles.choicesContainer}> 
-      <Text>Choices</Text> 
-    </View> 
-  ); 
-}; 
  
 const PlayerInfos = () => { 
   return ( 
