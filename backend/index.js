@@ -229,6 +229,13 @@ io.on('connection', socket => {
   socket.on('disconnect', reason => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
   });
+  
+  socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'gameOver') {
+        alert(`Le jeu est terminé. Le gagnant est le joueur ${data.winner}!`);
+    }
+};
 });
 
 // -----------------------------------

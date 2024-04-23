@@ -315,16 +315,57 @@ const GameService = {
         },
 
         selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
+            // Mettre à jour la grille avec le choix du joueur
             const updatedGrid = grid.map((row, rowIndexParsing) => row.map((cell, cellIndexParsing) => {
                 if ((cell.id === idCell) && (rowIndexParsing === rowIndex) && (cellIndexParsing === cellIndex)) {
-                    return { ...cell, owner: currentTurn };
+                    return { ...cell, owner: currentTurn }; // Assignation du joueur courant à la cellule sélectionnée
                 } else {
-                    return cell;
+                    return cell; // Retourner les cellules inchangées
                 }
             }));
         
-            return updatedGrid;
-        }
+            // Vérifier si ce choix a créé une condition de victoire
+            const hasWinner = this.grid.checkForWinner(updatedGrid);
+            if (hasWinner) {
+                console.log(`Le joueur ${currentTurn} a gagné!`); // Log ou autre action en cas de victoire
+                return { updatedGrid, gameOver: true, winner: currentTurn }; // Retourner un objet avec la grille mise à jour, l'état de fin de jeu et le gagnant
+            }
+        
+            return { updatedGrid, gameOver: false }; // Retourner la grille mise à jour avec l'état de jeu continu
+        },
+        checkForWinner: (grid) => {
+            const size = grid.length; // Supposer une grille carrée
+            let rowWin, colWin, diag1Win = true, diag2Win = true;
+    
+            for (let i = 0; i < size; i++) {
+                rowWin = true;
+                colWin = true;
+    
+                for (let j = 0; j < size; j++) {
+                    // Vérifier les lignes et les colonnes
+                    if (grid[i][0].owner !== grid[i][j].owner || grid[i][j].owner === null) {
+                        rowWin = false;
+                    }
+                    if (grid[0][i].owner !== grid[j][i].owner || grid[j][i].owner === null) {
+                        colWin = false;
+                    }
+                }
+    
+                // Vérifier les diagonales
+                if (grid[i][i].owner !== grid[0][0].owner || grid[i][i].owner === null) {
+                    diag1Win = false;
+                }
+                if (grid[i][size - 1 - i].owner !== grid[0][size - 1].owner || grid[i][size - 1 - i].owner === null) {
+                    diag2Win = false;
+                }
+    
+                if (rowWin || colWin) return true; // Retourner vrai si une ligne ou une colonne gagnante est trouvée
+            }
+    
+            if (diag1Win || diag2Win) return true; // Retourner vrai si une diagonale gagnante est trouvée
+    
+            return false; // Retourner faux si aucune ligne, colonne ou diagonale gagnante n'est trouvée
+        },
 
     },
 

@@ -1,5 +1,5 @@
 
-import React from "react"; 
+import React, {useState, useEffect} from "react"; 
 import { View, Text, StyleSheet } from 'react-native'; 
 import PlayerTimer from '../timers/player-timer.component';
 import OpponentTimer from '../timers/opponent-timer.component';
@@ -7,7 +7,10 @@ import OpponentDeck from "./decks/opponent-deck.component";
 import PlayerDeck from "./decks/player-deck.component";
 import Grid from "./grid/grid.component";
 import Choices from "./choices/choices.component";
- 
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+
 const OpponentInfos = () => { 
   return ( 
     <View style={styles.opponentInfosContainer}> 
@@ -44,6 +47,28 @@ const PlayerScore = () => {
  
  
 const Board = ({ gameViewState}) => { 
+
+  const [open, setOpen] = useState(false);
+  const [winner, setWinner] = useState('');
+
+    useEffect(() => {
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'gameOver') {
+                setWinner(data.winner);
+                setOpen(true);
+            }
+        };
+
+        return () => {
+            socket.close();
+        };
+    }, []);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
   return ( 
     <View style={styles.container}> 
       <View style={[styles.row, { height: '5%' }]}> 
@@ -69,7 +94,11 @@ const Board = ({ gameViewState}) => {
           <PlayerTimer /> 
           <PlayerScore /> 
         </View> 
-      </View> 
+      </View>            
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Le jeu est terminé. Le gagnant est le joueur {winner}!</DialogTitle>
+                <Button onClick={handleClose}>Fermer</Button>
+            </Dialog>
     </View> 
   ); 
 }; 
