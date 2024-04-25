@@ -1,17 +1,4 @@
-// Durée d'un tour en secondes
-const TURN_DURATION = 30;
-
-const DECK_INIT = {
-    dices: [
-        { id: 1, value: '', locked: true },
-        { id: 2, value: '', locked: true },
-        { id: 3, value: '', locked: true },
-        { id: 4, value: '', locked: true },
-        { id: 5, value: '', locked: true },
-    ],
-    rollsCounter: 1,
-    rollsMaximum: 3
-};
+// websocket-server/services/game.service.js
 
 const CHOICES_INIT = {
     isDefi: false,
@@ -22,57 +9,72 @@ const CHOICES_INIT = {
 
 const GRID_INIT = [
     [
-        { viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false },
-        { viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false },
-        { viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false },
-        { viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false },
-        { viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false },
+        {viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false},
+        {viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false},
+        {viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false},
+        {viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false},
+        {viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false},
     ],
     [
-        { viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false },
-        { viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false },
-        { viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false },
-        { viewContent: 'Full', id: 'full', owner: null, canBeChecked: false },
-        { viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false },
+        {viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false},
+        {viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false},
+        {viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false},
+        {viewContent: 'Full', id: 'full', owner: null, canBeChecked: false},
+        {viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false},
     ],
     [
-        { viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false },
-        { viewContent: 'Full', id: 'full', owner: null, canBeChecked: false },
-        { viewContent: 'Yam', id: 'yam', owner: null, canBeChecked: false },
-        { viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false },
-        { viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false },
+        {viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false},
+        {viewContent: 'Full', id: 'full', owner: null, canBeChecked: false},
+        {viewContent: 'Yam', id: 'yam', owner: null, canBeChecked: false},
+        {viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false},
+        {viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false},
     ],
     [
-        { viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false },
-        { viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false },
-        { viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false },
-        { viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false },
-        { viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false },
+        {viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false},
+        {viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false},
+        {viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false},
+        {viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false},
+        {viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false},
     ],
     [
-        { viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false },
-        { viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false },
-        { viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false },
-        { viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false },
-        { viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false },
+        {viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false},
+        {viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false},
+        {viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false},
+        {viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false},
+        {viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false},
     ]
 ];
 
+
 const ALL_COMBINATIONS = [
-    { value: 'Brelan1', id: 'brelan1' },
-    { value: 'Brelan2', id: 'brelan2' },
-    { value: 'Brelan3', id: 'brelan3' },
-    { value: 'Brelan4', id: 'brelan4' },
-    { value: 'Brelan5', id: 'brelan5' },
-    { value: 'Brelan6', id: 'brelan6' },
-    { value: 'Full', id: 'full' },
-    { value: 'Carré', id: 'carre' },
-    { value: 'Yam', id: 'yam' },
-    { value: 'Suite', id: 'suite' },
-    { value: '≤8', id: 'moinshuit' },
-    { value: 'Sec', id: 'sec' },
-    { value: 'Défi', id: 'defi' }
+    {value: 'Brelan1', id: 'brelan1'},
+    {value: 'Brelan2', id: 'brelan2'},
+    {value: 'Brelan3', id: 'brelan3'},
+    {value: 'Brelan4', id: 'brelan4'},
+    {value: 'Brelan5', id: 'brelan5'},
+    {value: 'Brelan6', id: 'brelan6'},
+    {value: 'Full', id: 'full'},
+    {value: 'Carré', id: 'carre'},
+    {value: 'Yam', id: 'yam'},
+    {value: 'Suite', id: 'suite'},
+    {value: '≤8', id: 'moinshuit'},
+    {value: 'Sec', id: 'sec'},
+    {value: 'Défi', id: 'defi'}
 ];
+
+const TURN_DURATION = 30;
+
+const DECK_INIT = {
+    dices: [
+        {id: 1, value: '', locked: true},
+        {id: 2, value: '', locked: true},
+        {id: 3, value: '', locked: true},
+        {id: 4, value: '', locked: true},
+        {id: 5, value: '', locked: true},
+    ],
+    rollsCounter: 1,
+    rollsMaximum: 3
+};
 
 const GAME_INIT = {
     gameState: {
@@ -80,38 +82,41 @@ const GAME_INIT = {
         timer: null,
         player1Score: 0,
         player2Score: 0,
+        grid: [],
         choices: {},
-        deck: {}
+        deck: {},
+        player1Tokens: 12,
+        player2Tokens: 12
     }
 }
-
 const GameService = {
 
     init: {
         gameState: () => {
-            const game = { ...GAME_INIT };
+            const game = {...GAME_INIT};
             game['gameState']['timer'] = TURN_DURATION;
-            game['gameState']['deck'] = { ...DECK_INIT };
-            game['gameState']['choices'] = { ...CHOICES_INIT };
-            game['gameState']['grid'] = [ ...GRID_INIT];
+            game['gameState']['deck'] = {...DECK_INIT};
+            game['gameState']['choices'] = {...CHOICES_INIT};
+            game['gameState']['grid'] = [...GRID_INIT];
             return game;
         },
 
         deck: () => {
-            return { ...DECK_INIT };
+            return {...DECK_INIT};
         },
 
         choices: () => {
-            return { ...CHOICES_INIT };
+            return {...CHOICES_INIT};
         },
 
         grid: () => {
-            return [ ...GRID_INIT];
+            return {...GRID_INIT};
         }
     },
 
     send: {
         forPlayer: {
+            // Return conditionnaly gameState custom objet for player views
             viewGameState: (playerKey, game) => {
                 return {
                     inQueue: false,
@@ -127,6 +132,35 @@ const GameService = {
                 };
             },
 
+            gridViewState: (playerKey, gameState) => {
+                return {
+                    displayGrid: true,
+                    canSelectCells: (playerKey === gameState.currentTurn) && (gameState.choices.availableChoices.length > 0),
+                    grid: gameState.grid
+                };
+            },
+
+
+            choicesViewState: (playerKey, gameState) => {
+                return {
+                    displayChoices: true,
+                    canMakeChoice: playerKey === gameState.currentTurn,
+                    idSelectedChoice: gameState.choices.idSelectedChoice,
+                    availableChoices: gameState.choices.availableChoices
+                };
+            },
+
+            deckViewState: (playerKey, gameState) => {
+                return {
+                    displayPlayerDeck: gameState.currentTurn === playerKey,
+                    displayOpponentDeck: gameState.currentTurn !== playerKey,
+                    displayRollButton: gameState.deck.rollsCounter <= gameState.deck.rollsMaximum,
+                    rollsCounter: gameState.deck.rollsCounter,
+                    rollsMaximum: gameState.deck.rollsMaximum,
+                    dices: gameState.deck.dices
+                };
+            },
+
             viewQueueState: () => {
                 return {
                     inQueue: true,
@@ -135,59 +169,27 @@ const GameService = {
             },
 
             gameTimer: (playerKey, gameState) => {
+                // Selon la clé du joueur on adapte la réponse (player / opponent)
                 const playerTimer = gameState.currentTurn === playerKey ? gameState.timer : 0;
                 const opponentTimer = gameState.currentTurn === playerKey ? 0 : gameState.timer;
-                return { playerTimer: playerTimer, opponentTimer: opponentTimer };
+                return {playerTimer: playerTimer, opponentTimer: opponentTimer};
             },
 
-            deckViewState: (playerKey, gameState) => {
-                const deckViewState = {
-                    displayPlayerDeck: gameState.currentTurn === playerKey,
-                    displayOpponentDeck: gameState.currentTurn !== playerKey,
-                    displayRollButton: gameState.deck.rollsCounter <= gameState.deck.rollsMaximum,
-                    rollsCounter: gameState.deck.rollsCounter,
-                    rollsMaximum: gameState.deck.rollsMaximum,
-                    dices: gameState.deck.dices
-                };
-                return deckViewState;
-            },
-
-            choicesViewState: (playerKey, gameState) => {
-
-                const choicesViewState = {
-                    displayChoices: true,
-                    canMakeChoice: playerKey === gameState.currentTurn,
-                    idSelectedChoice: gameState.choices.idSelectedChoice,
-                    availableChoices: gameState.choices.availableChoices
-                }
-
-                return choicesViewState;
-            },
-
-            gridViewState: (playerKey, gameState) => {
-
+            tokensViewState: (playerKey, gameState) => {
                 return {
-                    displayGrid: true,
-                    canSelectCells: (playerKey === gameState.currentTurn) && (gameState.choices.availableChoices.length > 0),
-                    grid: gameState.grid
-                };
-
+                    playerTokens: playerKey === 'player:1' ? gameState.player1Tokens : gameState.player2Tokens,
+                    opponentTokens: playerKey === 'player:1' ? gameState.player2Tokens : gameState.player1Tokens,
+                }
             }
-        }
-    },
-
-    timer: {  
-        getTurnDuration: () => {
-            return TURN_DURATION;
         }
     },
 
     dices: {
         roll: (dicesToRoll) => {
-            const rolledDices = dicesToRoll.map(dice => {
+            return dicesToRoll.map(dice => {
                 if (dice.value === "") {
                     // Si la valeur du dé est vide, alors on le lance en mettant le flag locked à false
-                    const newValue = String(Math.floor(Math.random() * 6) + 1); // Convertir la valeur en chaîne de caractères
+                    const newValue = String(Math.floor(Math.random() * 6) + 1);
                     return {
                         id: dice.id,
                         value: newValue,
@@ -205,17 +207,59 @@ const GameService = {
                     return dice;
                 }
             });
-            return rolledDices;
         },
 
         lockEveryDice: (dicesToLock) => {
-            const lockedDices = dicesToLock.map(dice => ({
+            return dicesToLock.map(dice => ({
                 ...dice,
-                locked: true // Verrouille chaque dé
+                locked: true
             }));
-            return lockedDices;
         }
     },
+
+    grid: {
+
+        resetCanBeCheckedCells: (grid) => {
+            // La grille retournée doit avoir le flag 'canBeChecked' de toutes les cases de la 'grid' à 'false'
+            return grid.map((gridRow) => {
+                return gridRow.map((item) => {
+                    item.canBeChecked = false;
+                    return item;
+                })
+            })
+        },
+
+        updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {
+            // La grille retournée doit avoir toutes les 'cells' qui ont le même 'id' que le 'idSelectedChoice' à 'canBeChecked: true'
+
+            return grid.map((row) => {
+                return row.map((item) => {
+                    if (item.id === idSelectedChoice) {
+                        item.canBeChecked = true;
+                    }
+
+                    return item;
+                })
+            });
+        },
+
+        selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
+            // La grille retournée doit avoir la case selectionnée par le joueur du tour en cours à 'owner: currentTurn'
+            // Nous avons besoin de rowIndex et cellIndex pour différencier les deux combinaisons similaires du plateau
+            grid = grid.map((row, rowIndexGrid) => {
+                return row.map((item, itemIndexGrid) => {
+                    if (rowIndexGrid === rowIndex && itemIndexGrid === cellIndex && item.id === idCell) {
+                        item.owner = currentTurn
+                    }
+
+                    return item;
+                })
+            })
+
+            return grid;
+        }
+    },
+
 
     choices: {
         findCombinations: (dices, isDefi, isSec) => {
@@ -291,84 +335,23 @@ const GameService = {
         }
     },
 
-    grid: {
-
-        resetcanBeCheckedCells: (grid) => {
-            const updatedGrid = grid.map(row => row.map(cell => {
-                return { ...cell, canBeChecked: false };    
-            }));
-
-            return updatedGrid;
-        },
-
-        updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {
-
-            const updatedGrid = grid.map(row => row.map(cell => {
-                if (cell.id === idSelectedChoice && cell.owner === null) {
-                    return { ...cell, canBeChecked: true };
-                } else {
-                    return cell;
-                }
-            }));
-
-            return updatedGrid;
-        },
-
-        selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
-            // Mettre à jour la grille avec le choix du joueur
-            const updatedGrid = grid.map((row, rowIndexParsing) => row.map((cell, cellIndexParsing) => {
-                if ((cell.id === idCell) && (rowIndexParsing === rowIndex) && (cellIndexParsing === cellIndex)) {
-                    return { ...cell, owner: currentTurn }; // Assignation du joueur courant à la cellule sélectionnée
-                } else {
-                    return cell; // Retourner les cellules inchangées
-                }
-            }));
-        
-            // Vérifier si ce choix a créé une condition de victoire
-            const hasWinner = this.grid.checkForWinner(updatedGrid);
-            if (hasWinner) {
-                console.log(`Le joueur ${currentTurn} a gagné!`); // Log ou autre action en cas de victoire
-                return { updatedGrid, gameOver: true, winner: currentTurn }; // Retourner un objet avec la grille mise à jour, l'état de fin de jeu et le gagnant
+    tokens: {
+        decrementToken: (gameState, playerKey) => {
+            if (playerKey === "player:1") {
+                gameState["player1Tokens"] = --gameState["player1Tokens"]
+            } else if (playerKey === "player:2") {
+                gameState["player2Tokens"] = --gameState["player2Tokens"]
             }
-        
-            return { updatedGrid, gameOver: false }; // Retourner la grille mise à jour avec l'état de jeu continu
-        },
-        checkForWinner: (grid) => {
-            const size = grid.length; // Supposer une grille carrée
-            let rowWin, colWin, diag1Win = true, diag2Win = true;
-    
-            for (let i = 0; i < size; i++) {
-                rowWin = true;
-                colWin = true;
-    
-                for (let j = 0; j < size; j++) {
-                    // Vérifier les lignes et les colonnes
-                    if (grid[i][0].owner !== grid[i][j].owner || grid[i][j].owner === null) {
-                        rowWin = false;
-                    }
-                    if (grid[0][i].owner !== grid[j][i].owner || grid[j][i].owner === null) {
-                        colWin = false;
-                    }
-                }
-    
-                // Vérifier les diagonales
-                if (grid[i][i].owner !== grid[0][0].owner || grid[i][i].owner === null) {
-                    diag1Win = false;
-                }
-                if (grid[i][size - 1 - i].owner !== grid[0][size - 1].owner || grid[i][size - 1 - i].owner === null) {
-                    diag2Win = false;
-                }
-    
-                if (rowWin || colWin) return true; // Retourner vrai si une ligne ou une colonne gagnante est trouvée
-            }
-    
-            if (diag1Win || diag2Win) return true; // Retourner vrai si une diagonale gagnante est trouvée
-    
-            return false; // Retourner faux si aucune ligne, colonne ou diagonale gagnante n'est trouvée
-        },
 
+            return gameState;
+        },
     },
 
+    timer: {
+        getTurnDuration: () => {
+            return TURN_DURATION;
+        }
+    },
     utils: {
         // Return game index in global games array by id
         findGameIndexById: (games, idGame) => {
