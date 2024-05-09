@@ -89,6 +89,7 @@ const GAME_INIT = {
         player2Tokens: 12
     }
 }
+
 const GameService = {
 
     init: {
@@ -183,6 +184,37 @@ const GameService = {
             }
         }
     },
+
+    victoryConditions: {
+        checkVictory: function(grid, tokens) {
+            const gridSize = grid.length;
+            let diagSum1 = new Set();
+            let diagSum2 = new Set();
+    
+            for (let i = 0; i < gridSize; i++) {
+                let rowSum = new Set();
+                let colSum = new Set();
+                for (let j = 0; j < gridSize; j++) {
+                    rowSum.add(grid[i][j].owner);
+                    colSum.add(grid[j][i].owner);
+                }
+                // Check if all elements in a row or column are the same and not null
+                if (rowSum.size === 1 && !rowSum.has(null)) return true;
+                if (colSum.size === 1 && !colSum.has(null)) return true;
+    
+                // Check diagonals
+                diagSum1.add(grid[i][i].owner);
+                diagSum2.add(grid[gridSize - 1 - i][i].owner);
+            }
+            if (diagSum1.size === 1 && !diagSum1.has(null)) return true;
+            if (diagSum2.size === 1 && !diagSum2.has(null)) return true;
+    
+            // Check if any player has run out of tokens
+            if (tokens.player1Tokens === 0 || tokens.player2Tokens === 0) return true;
+    
+            return false;
+        }
+    },    
 
     dices: {
         roll: (dicesToRoll) => {
@@ -338,12 +370,13 @@ const GameService = {
     tokens: {
         decrementToken: (gameState, playerKey) => {
             if (playerKey === "player:1") {
-                gameState["player1Tokens"] = --gameState["player1Tokens"]
+                gameState["player1Tokens"]--;
+                console.log(`Player 1 tokens decremented: now ${gameState["player1Tokens"]}`);
             } else if (playerKey === "player:2") {
-                gameState["player2Tokens"] = --gameState["player2Tokens"]
+                gameState["player2Tokens"]--;
+                console.log(`Player 2 tokens decremented: now ${gameState["player2Tokens"]}`);
             }
-
-            return gameState;
+            return gameState;  // Retourne le gameState mis à jour
         },
     },
 

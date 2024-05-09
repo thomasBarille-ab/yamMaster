@@ -168,28 +168,41 @@ const chooseChoice = (socket, data) => {
     const gameIndex = GameService.utils.findGameIndexBySocketId(games, socket.id);
     games[gameIndex].gameState.choices.idSelectedChoice = data.choiceId;
 
-    // La sélection d'une cellule signifie la fin du tour (ou plus tard le check des conditions de victoires)
-    // On reset l'état des cases qui étaient précédemment clicables.
+    // Réinitialiser l'état des cases qui étaient précédemment cliquables.
     games[gameIndex].gameState.grid = GameService.grid.resetCanBeCheckedCells(games[gameIndex].gameState.grid);
     games[gameIndex].gameState.grid = GameService.grid.selectCell(data.cellId, data.rowIndex, data.cellIndex, games[gameIndex].gameState.currentTurn, games[gameIndex].gameState.grid);
-    games[gameIndex].gameState = GameService.tokens.decrementToken(games[gameIndex].gameState, games[gameIndex].gameState.currentTurn)
+    games[gameIndex].gameState = GameService.tokens.decrementToken(games[gameIndex].gameState, games[gameIndex].gameState.currentTurn);
 
-    // TODO: Ici calculer le score
-    // TODO: Puis check si la partie s'arrête (lines / diagolales / no-more-gametokens)
+    // Vérification des conditions de victoire
+    if (GameService.victoryConditions.checkVictory(games[gameIndex].gameState.grid, games[gameIndex].gameState)) {
+        // Envoyer les informations de la fin de partie aux deux joueurs
+        io.to(games[gameIndex].player1Socket.id).emit('game.over', {
+            winner: games[gameIndex].gameState.currentTurn === 'player:1',
+            message: 'Game over! ' + (games[gameIndex].gameState.currentTurn === 'player:1' ? 'Player 1 wins!' : 'Player 2 wins!')
+        });
+        io.to(games[gameIndex].player2Socket.id).emit('game.over', {
+            winner: games[gameIndex].gameState.currentTurn === 'player:2',
+            message: 'Game over! ' + (games[gameIndex].gameState.currentTurn === 'player:2' ? 'Player 2 wins!' : 'Player 1 wins!')
+        });
 
-    // Sinon on finit le tour
+        // Optionnel : Supprimer la partie des jeux actifs
+        // games.splice(gameIndex, 1);
+        return;  // Arrêter l'exécution supplémentaire si la partie est finie
+    }
+
+    // Changement de tour
     games[gameIndex].gameState.currentTurn = games[gameIndex].gameState.currentTurn === 'player:1' ? 'player:2' : 'player:1';
     games[gameIndex].gameState.timer = GameService.timer.getTurnDuration();
 
-    // On remet le deck et les choix à zéro (la grille, elle, ne change pas)
+    // Réinitialiser le deck, les choix, et le timer pour le nouveau tour
     games[gameIndex].gameState.deck = GameService.init.deck();
     games[gameIndex].gameState.choices = GameService.init.choices();
 
-    // On reset le timer
+    // Notification des mises à jour du timer aux joueurs
     games[gameIndex].player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', games[gameIndex].gameState));
     games[gameIndex].player2Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:2', games[gameIndex].gameState));
 
-    // et on remet à jour la vue
+    // Mettre à jour les vues pour les joueurs
     updateDecks(gameIndex);
     updateChoices(gameIndex);
     updateGrid(gameIndex);
