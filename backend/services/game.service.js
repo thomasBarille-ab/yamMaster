@@ -86,7 +86,8 @@ const GAME_INIT = {
         choices: {},
         deck: {},
         player1Tokens: 12,
-        player2Tokens: 12
+        player2Tokens: 12,
+        winner: null,
     }
 }
 const GameService = {
@@ -140,6 +141,15 @@ const GameService = {
                 };
             },
 
+            endGame: (playerKey, gameState) => {
+                return {
+                    winner: gameState.winner === playerKey,
+                    endGame: true,
+                    playerScore: playerKey === 'player:1' ? gameState.player1Score : gameState.player2Score,
+                    opponentScore: playerKey === 'player:1' ? gameState.player2Score : gameState.player1Score
+                };
+            },
+
 
             choicesViewState: (playerKey, gameState) => {
                 return {
@@ -165,6 +175,13 @@ const GameService = {
                 return {
                     inQueue: true,
                     inGame: false,
+                };
+            },
+
+            scoreViewState: (playerKey, gameState) => {
+                return {
+                    playerScore: playerKey === 'player:1' ? gameState.player1Score : gameState.player2Score,
+                    opponentScore: playerKey === 'player:1' ? gameState.player2Score : gameState.player1Score,
                 };
             },
 
@@ -257,7 +274,46 @@ const GameService = {
             })
 
             return grid;
+        },
+
+        countPoints: (grid) => {
+            const directions = [
+                {dr: 0, dc: 1},
+                {dr: 1, dc: 0},
+                {dr: 1, dc: 1},
+                {dr: 1, dc: -1}
+            ];
+
+            let score = 0;
+
+            const checkLine = (row, col, dr, dc, owner) => {
+                let length = 0;
+                while (grid[row] && grid[row][col] && grid[row][col].owner === owner) {
+                    length++;
+                    row += dr;
+                    col += dc;
+                }
+                return length;
+            };
+
+            grid.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    if (cell.owner) {
+                        directions.forEach(({dr, dc}) => {
+                            if (!(grid[rowIndex - dr] && grid[rowIndex - dr][colIndex - dc] && grid[rowIndex - dr][colIndex - dc].owner === cell.owner)) {
+                                const length = checkLine(rowIndex, colIndex, dr, dc, cell.owner);
+                                if (length >= 3) {
+                                    score += length - 2;
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            return score;
         }
+
     },
 
 
@@ -379,7 +435,39 @@ const GameService = {
                 }
             }
             return -1;
-        }
+        },
+
+        endGame: {
+            checkForFiveAligned: (grid) => {
+                const size = 5; // La grille est de 5x5
+
+                // Fonction helper pour vérifier si cinq cases consécutives sont du même propriétaire
+                const checkFiveConsecutive = (cells) => {
+                    const first = cells[0].owner;
+                    return first && cells.every(cell => cell.owner === first);
+                };
+
+                // Vérifier les lignes et les colonnes
+                for (let i = 0; i < size; i++) {
+                    if (checkFiveConsecutive(grid[i]) || checkFiveConsecutive(grid.map(row => row[i]))) {
+                        return grid[i][0].owner; // Retourne le propriétaire si trouvé
+                    }
+                }
+
+                // Vérifier les diagonales
+                const diag1 = [];
+                const diag2 = [];
+                for (let i = 0; i < size; i++) {
+                    diag1.push(grid[i][i]);
+                    diag2.push(grid[i][size - 1 - i]);
+                }
+                if (checkFiveConsecutive(diag1) || checkFiveConsecutive(diag2)) {
+                    return diag1[0].owner; // Retourne le propriétaire si trouvé
+                }
+
+                return null; // Pas de gagnant trouvé
+            },
+        },
     }
 }
 
