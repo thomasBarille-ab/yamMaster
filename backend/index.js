@@ -75,7 +75,28 @@ const newPlayerInQueue = (socket) => {
     }
 };
 
-const createGame = (player1Socket, player2Socket) => {
+const bot = {
+    id: 'bot',
+    emit: (event, data) => {
+        switch (event) {
+            case 'game.dices.roll':
+                // Roll the dices after a random delay
+                setTimeout(() => {
+                    socket.emit('game.dices.roll');
+                }, Math.random() * 2000);
+                break;
+            case 'game.choices.selected':
+                // Select a random choice
+                const choice = data.choices[Math.floor(Math.random() * data.choices.length)];
+                socket.emit('game.choices.selected', choice);
+                break;
+            // Add more cases as needed based on your game's events
+        }
+    }
+};
+
+
+const createGame = (player1Socket, player2Socket = bot) => {
 
     const newGame = GameService.init.gameState();
     newGame['idGame'] = uniqid();
@@ -95,7 +116,7 @@ const createGame = (player1Socket, player2Socket) => {
 
         games[gameIndex].gameState.timer--;
 
-        // Si le timer tombe à zéro
+        // If the timer drops to zero
         if (games[gameIndex].gameState.timer === 0) {
             if (games[gameIndex].gameState.winner) {
                 endGame(gameIndex);
@@ -247,9 +268,12 @@ const chooseChoice = (socket, data) => {
 io.on('connection', socket => {
     console.log(`[${socket.id}] socket connected`);
 
-    socket.on('queue.join', () => {
-        console.log(`[${socket.id}] new player in queue `);
-        newPlayerInQueue(socket);
+    socket.on('queue.join', (playAgainstBot = false) => {
+        if (playAgainstBot) {
+            createGame(socket);
+        } else {
+            newPlayerInQueue(socket);
+        }
     });
 
     socket.on('queue.leave', () => {
