@@ -19,7 +19,7 @@ This example shows how to connect and interact with socket-io backends.
 
 ## 🚀 How to use
 
-# WARNING :warning: 
+### WARNING :warning: 
 
 - First of all, you need to download our pictures folder : https://we.tl/t-RBMxmTlq58 (wetranfer link)
 - And place it at the right path : app/pictures
