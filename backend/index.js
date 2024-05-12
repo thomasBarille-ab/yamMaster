@@ -215,7 +215,6 @@ const chooseChoice = (socket, data) => {
             endGame(gameIndex);
             // remove the game from the games array
         }, 2000);
-
         return;
     }
 
