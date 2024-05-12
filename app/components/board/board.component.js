@@ -10,23 +10,8 @@ import Grid from "./grid/grid.component";
 import Choices from "./choices/choices.component";
 import PlayerInfos from "./infos/player-info.component";
 import OpponentInfos from "./infos/opponent-info.component";
-
-const OpponentScore = () => {
-    return (
-        <View style={styles.opponentScoreContainer}>
-            <Text>Score: </Text>
-        </View>
-    );
-};
-
-const PlayerScore = () => {
-
-    return (
-        <View style={styles.playerScoreContainer}>
-            <Text>PlayerScore</Text>
-        </View>
-    );
-};
+import OpponentScore from "./score/opponent-score.component";
+import PlayerScore from "./score/player-score.component";
 
 
 const Board = ({gameViewState}) => {
