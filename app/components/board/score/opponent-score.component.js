@@ -15,7 +15,7 @@ const OpponentScore = () => {
     }, []);
     return (
         <View style={styles.opponentScoreContainer}>
-            <Text>Score : {score}</Text>
+            <Text style={styles.scoreText}>Score: {score}</Text>
         </View>
     );
 };
@@ -26,6 +26,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    scoreText: {
+        fontSize: 18,
+        color: 'white', // Texte en blanc pour une meilleure visibilité
+    }
 });
 
 export default OpponentScore;

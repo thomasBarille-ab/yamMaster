@@ -1,7 +1,7 @@
 // app/components/board/board.component.js
 
 import React from "react";
-import {View, Text, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import PlayerTimer from '../timers/player-timer.component';
 import OpponentTimer from '../timers/opponent-timer.component';
 import OpponentDeck from "./decks/opponent-deck.component";
@@ -16,7 +16,11 @@ import PlayerScore from "./score/player-score.component";
 
 const Board = ({gameViewState}) => {
     return (
-        <View style={styles.container}>
+        <ImageBackground 
+            source={require('../../pictures/board.gif')} // Assure-toi que le chemin vers l'image est correct
+            style={styles.container}
+            resizeMode="cover" // Ajuste selon le besoin pour remplir l'espace
+        >
             <View style={[styles.row, {height: '5%'}]}>
                 <OpponentInfos/>
                 <View style={styles.opponentTimerScoreContainer}>
@@ -41,7 +45,7 @@ const Board = ({gameViewState}) => {
                     <PlayerScore/>
                 </View>
             </View>
-        </View>
+        </ImageBackground>
     );
 };
 
@@ -51,29 +55,30 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
+        alignContent: 'center',
         width: '100%',
-        height: '100%',
+        height: '95%',
+        backgroundColor: 'black'
     },
     row: {
         flexDirection: 'row',
         width: '100%',
         borderBottomWidth: 1,
-        borderColor: 'black',
+        borderColor: 'cyan',
     },
     opponentInfosContainer: {
         flex: 7,
         justifyContent: 'center',
         alignItems: 'center',
         borderRightWidth: 1,
-        borderColor: 'black',
-        backgroundColor: "lightgrey"
+        borderColor: 'cyan',
     },
     opponentTimerScoreContainer: {
         flex: 3,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: "lightgrey"
+        borderColor: 'cyan',
     },
 
     opponentScoreContainer: {
@@ -86,14 +91,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         borderBottomWidth: 1,
-        borderColor: "black"
+        borderColor: "cyan"
     },
     gridContainer: {
         flex: 7,
         justifyContent: 'center',
         alignItems: 'center',
         borderRightWidth: 1,
-        borderColor: 'black',
+        borderColor: 'cyan',
     },
     choicesContainer: {
         flex: 3,

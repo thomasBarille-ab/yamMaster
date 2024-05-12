@@ -17,7 +17,7 @@ const OpponentInfos = () => {
     }, []);
     return (
         <View style={styles.opponentTimerContainer}>
-            <Text>Tokens: {opponentTokens}</Text>
+            <Text style={styles.tokenText}>Tokens: {opponentTokens}</Text>
         </View>
     );
 };
@@ -29,6 +29,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    tokenText: {  // Style pour le texte des tokens
+        fontSize: 18,
+        color: '#FFFFFF',  // Couleur blanche
+        fontWeight: 'bold'
+    }
 })
 
 export default OpponentInfos;

@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from "react-native";
 import { SocketContext } from "../../../contexts/socket.context";
 
 const Grid = () => {
@@ -37,12 +37,19 @@ const Grid = () => {
                                     (cell.canBeChecked && !(cell.owner === "player:1") && !(cell.owner === "player:2")) && styles.canBeCheckedCell,
                                     rowIndex !== 0 && styles.topBorder,
                                     cellIndex !== 0 && styles.leftBorder,
-                                    styles.neonEffect // Apply neon effect here
+                                    styles.neonEffect // Appliquer l'effet néon ici
                                 ]}
                                 onPress={() => handleSelectCell(cell.id, rowIndex, cellIndex)}
                                 disabled={!cell.canBeChecked}
                             >
-                                <Text style={styles.cellText}>{cell.viewContent}</Text>
+                                <Text style={[
+                                    styles.cellText, 
+                                    cell.owner === "player:1" && styles.playerOwnedText,
+                                    cell.owner === "player:2" && styles.opponentOwnedText,
+                                    cell.canBeChecked && styles.canBeCheckedText
+                                ]}>
+                                    {cell.viewContent}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -74,21 +81,36 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderWidth: 1,
         borderColor: "black",
-        borderRadius: 5, // Slightly rounded corners
     },
     cellText: {
-        fontSize: 11,
+        fontSize: 20,
+        color: 'white', // Couleur de texte par défaut en noir
     },
     playerOwnedCell: {
-        backgroundColor: "lightgreen",
+        backgroundColor: "cyan", // Couleur cyan pour Player 1
         opacity: 0.9,
     },
+    playerOwnedText: { // Texte pour Player 1
+        color: '#000',
+    },
     opponentOwnedCell: {
-        backgroundColor: "lightcoral",
+        backgroundColor: "pink", // Couleur rose type néon pour Player 2
         opacity: 0.9,
+    },
+    opponentOwnedText: { // Texte pour Player 2
+        color: '#000',
     },
     canBeCheckedCell: {
         backgroundColor: "lightyellow",
+    },
+    canBeCheckedText: { // Texte pour les cases sélectionnables
+        color: '#000', // Texte en noir pour contraste avec jaune
+    },
+    neonEffect: {
+        shadowColor: 'cyan',
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 5,
+        shadowOpacity: 0.8,
     },
     topBorder: {
         borderTopWidth: 1,
@@ -96,12 +118,6 @@ const styles = StyleSheet.create({
     leftBorder: {
         borderLeftWidth: 1,
     },
-    neonEffect: {
-        shadowColor: 'cyan',
-        shadowOffset: { width: 0, height: 0 },
-        shadowRadius: 5,
-        shadowOpacity: 0.8,
-    }
 });
 
 export default Grid;
