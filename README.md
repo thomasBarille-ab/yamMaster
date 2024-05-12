@@ -23,7 +23,7 @@ This example shows how to connect and interact with socket-io backends.
 
 - First of all, you need to download our pictures folder : https://we.tl/t-RBMxmTlq58 (wetranfer link)
 - And place it at the right path : app/pictures
-- Otherwise it won't work
+- Otherwise it won't work (we had no other choice, it's too heavy files for GitHub)
 
 ### Running the app
 
