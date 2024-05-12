@@ -1,11 +1,9 @@
-import React, {useEffect, useContext, useState} from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { SocketContext } from "../../../contexts/socket.context";
 
 const Grid = () => {
-
     const socket = useContext(SocketContext);
-
     const [displayGrid, setDisplayGrid] = useState(false);
     const [canSelectCells, setCanSelectCells] = useState([]);
     const [grid, setGrid] = useState([]);
@@ -19,7 +17,7 @@ const Grid = () => {
     useEffect(() => {
         socket.on("game.grid.view-state", (data) => {
             setDisplayGrid(data['displayGrid']);
-            setCanSelectCells(data['canSelectCells'])
+            setCanSelectCells(data['canSelectCells']);
             setGrid(data['grid']);
         });
     }, []);
@@ -39,6 +37,7 @@ const Grid = () => {
                                     (cell.canBeChecked && !(cell.owner === "player:1") && !(cell.owner === "player:2")) && styles.canBeCheckedCell,
                                     rowIndex !== 0 && styles.topBorder,
                                     cellIndex !== 0 && styles.leftBorder,
+                                    styles.neonEffect // Apply neon effect here
                                 ]}
                                 onPress={() => handleSelectCell(cell.id, rowIndex, cellIndex)}
                                 disabled={!cell.canBeChecked}
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderWidth: 1,
         borderColor: "black",
+        borderRadius: 5, // Slightly rounded corners
     },
     cellText: {
         fontSize: 11,
@@ -96,6 +96,12 @@ const styles = StyleSheet.create({
     leftBorder: {
         borderLeftWidth: 1,
     },
+    neonEffect: {
+        shadowColor: 'cyan',
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 5,
+        shadowOpacity: 0.8,
+    }
 });
 
 export default Grid;
