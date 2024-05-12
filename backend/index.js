@@ -49,6 +49,18 @@ const updateTokens = (gameIndex) => {
     }, 200);
 }
 
+const updateScore = (gameIndex) => {
+    setTimeout(() => {
+        games[gameIndex].player1Socket.emit('game.score.view-state', GameService.send.forPlayer.scoreViewState('player:1', games[gameIndex].gameState));
+        games[gameIndex].player2Socket.emit('game.score.view-state', GameService.send.forPlayer.scoreViewState('player:2', games[gameIndex].gameState));
+    }, 200);
+}
+
+const endGame = (gameIndex) => {
+    games[gameIndex].player1Socket.emit('game.end', GameService.send.forPlayer.endGame('player:1', games[gameIndex].gameState));
+    games[gameIndex].player2Socket.emit('game.end', GameService.send.forPlayer.endGame('player:2', games[gameIndex].gameState));
+}
+
 const newPlayerInQueue = (socket) => {
 
     queue.push(socket);
@@ -63,7 +75,28 @@ const newPlayerInQueue = (socket) => {
     }
 };
 
-const createGame = (player1Socket, player2Socket) => {
+const bot = {
+    id: 'bot',
+    emit: (event, data) => {
+        switch (event) {
+            case 'game.dices.roll':
+                // Roll the dices after a random delay
+                setTimeout(() => {
+                    socket.emit('game.dices.roll');
+                }, Math.random() * 2000);
+                break;
+            case 'game.choices.selected':
+                // Select a random choice
+                const choice = data.choices[Math.floor(Math.random() * data.choices.length)];
+                socket.emit('game.choices.selected', choice);
+                break;
+            // Add more cases as needed based on your game's events
+        }
+    }
+};
+
+
+const createGame = (player1Socket, player2Socket = bot) => {
 
     const newGame = GameService.init.gameState();
     newGame['idGame'] = uniqid();
@@ -74,11 +107,23 @@ const createGame = (player1Socket, player2Socket) => {
 
     const gameIndex = GameService.utils.findGameIndexById(games, newGame.idGame);
     const gameInterval = setInterval(() => {
+        if (games[gameIndex].gameState.winner) {
+            endGame(gameIndex);
+            games.splice(games.indexOf(games[gameIndex].gameState), 1);
+            clearInterval(gameInterval);
+            return
+        }
 
         games[gameIndex].gameState.timer--;
 
-        // Si le timer tombe à zéro
+        // If the timer drops to zero
         if (games[gameIndex].gameState.timer === 0) {
+            if (games[gameIndex].gameState.winner) {
+                endGame(gameIndex);
+                games.splice(games.indexOf(games[gameIndex].gameState), 1);
+                clearInterval(gameInterval);
+                return
+            }
 
             // On change de tour en inversant le clé dans 'currentTurn'
             games[gameIndex].gameState.currentTurn = games[gameIndex].gameState.currentTurn === 'player:1' ? 'player:2' : 'player:1';
@@ -90,6 +135,7 @@ const createGame = (player1Socket, player2Socket) => {
             games[gameIndex].gameState.deck = GameService.init.deck();
             games[gameIndex].gameState.choices = GameService.init.choices();
             games[gameIndex].gameState.grid = GameService.grid.resetCanBeCheckedCells(games[gameIndex].gameState.grid);
+
             updateDecks(gameIndex);
             updateChoices(gameIndex);
             updateGrid(gameIndex);
@@ -188,6 +234,25 @@ const chooseChoice = (socket, data) => {
         // Optionnel : Supprimer la partie des jeux actifs
         // games.splice(gameIndex, 1);
         return;  // Arrêter l'exécution supplémentaire si la partie est finie
+    games[gameIndex].gameState = GameService.tokens.decrementToken(games[gameIndex].gameState, games[gameIndex].gameState.currentTurn)
+
+    // calcul du score
+    const newScore = GameService.grid.countPoints(games[gameIndex].gameState.grid);
+    if (games[gameIndex].gameState.currentTurn === 'player:1') {
+        games[gameIndex].gameState.player1Score += newScore;
+    } else {
+        games[gameIndex].gameState.player2Score += newScore;
+    }
+
+    // Ajout de la vérification de l'alignement de cinq après la sélection d'une cellule
+    const winner = GameService.utils.endGame.checkForFiveAligned(games[gameIndex].gameState.grid);
+    if (winner) {
+        games[gameIndex].gameState.winner = winner;
+        setTimeout(() => {
+            endGame(gameIndex);
+            // remove the game from the games array
+        }, 2000);
+        return;
     }
 
     // Changement de tour
@@ -202,11 +267,12 @@ const chooseChoice = (socket, data) => {
     games[gameIndex].player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', games[gameIndex].gameState));
     games[gameIndex].player2Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:2', games[gameIndex].gameState));
 
-    // Mettre à jour les vues pour les joueurs
     updateDecks(gameIndex);
     updateChoices(gameIndex);
     updateGrid(gameIndex);
     updateTokens(gameIndex);
+    updateScore(gameIndex);
+
 }
 
 // ---------------------------------------
@@ -216,9 +282,12 @@ const chooseChoice = (socket, data) => {
 io.on('connection', socket => {
     console.log(`[${socket.id}] socket connected`);
 
-    socket.on('queue.join', () => {
-        console.log(`[${socket.id}] new player in queue `);
-        newPlayerInQueue(socket);
+    socket.on('queue.join', (playAgainstBot = false) => {
+        if (playAgainstBot) {
+            createGame(socket);
+        } else {
+            newPlayerInQueue(socket);
+        }
     });
 
     socket.on('queue.leave', () => {
