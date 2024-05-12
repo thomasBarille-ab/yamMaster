@@ -214,26 +214,10 @@ const chooseChoice = (socket, data) => {
     const gameIndex = GameService.utils.findGameIndexBySocketId(games, socket.id);
     games[gameIndex].gameState.choices.idSelectedChoice = data.choiceId;
 
-    // Réinitialiser l'état des cases qui étaient précédemment cliquables.
+    // La sélection d'une cellule signifie la fin du tour (ou plus tard le check des conditions de victoires)
+    // On reset l'état des cases qui étaient précédemment clicables.
     games[gameIndex].gameState.grid = GameService.grid.resetCanBeCheckedCells(games[gameIndex].gameState.grid);
     games[gameIndex].gameState.grid = GameService.grid.selectCell(data.cellId, data.rowIndex, data.cellIndex, games[gameIndex].gameState.currentTurn, games[gameIndex].gameState.grid);
-    games[gameIndex].gameState = GameService.tokens.decrementToken(games[gameIndex].gameState, games[gameIndex].gameState.currentTurn);
-
-    // Vérification des conditions de victoire
-    if (GameService.victoryConditions.checkVictory(games[gameIndex].gameState.grid, games[gameIndex].gameState)) {
-        // Envoyer les informations de la fin de partie aux deux joueurs
-        io.to(games[gameIndex].player1Socket.id).emit('game.over', {
-            winner: games[gameIndex].gameState.currentTurn === 'player:1',
-            message: 'Game over! ' + (games[gameIndex].gameState.currentTurn === 'player:1' ? 'Player 1 wins!' : 'Player 2 wins!')
-        });
-        io.to(games[gameIndex].player2Socket.id).emit('game.over', {
-            winner: games[gameIndex].gameState.currentTurn === 'player:2',
-            message: 'Game over! ' + (games[gameIndex].gameState.currentTurn === 'player:2' ? 'Player 2 wins!' : 'Player 1 wins!')
-        });
-
-        // Optionnel : Supprimer la partie des jeux actifs
-        // games.splice(gameIndex, 1);
-        return;  // Arrêter l'exécution supplémentaire si la partie est finie
     games[gameIndex].gameState = GameService.tokens.decrementToken(games[gameIndex].gameState, games[gameIndex].gameState.currentTurn)
 
     // calcul du score
@@ -255,18 +239,20 @@ const chooseChoice = (socket, data) => {
         return;
     }
 
-    // Changement de tour
+    // Sinon on finit le tour
     games[gameIndex].gameState.currentTurn = games[gameIndex].gameState.currentTurn === 'player:1' ? 'player:2' : 'player:1';
     games[gameIndex].gameState.timer = GameService.timer.getTurnDuration();
 
-    // Réinitialiser le deck, les choix, et le timer pour le nouveau tour
+    // On remet le deck et les choix à zéro (la grille, elle, ne change pas)
     games[gameIndex].gameState.deck = GameService.init.deck();
     games[gameIndex].gameState.choices = GameService.init.choices();
 
-    // Notification des mises à jour du timer aux joueurs
+    // On reset le timer
     games[gameIndex].player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', games[gameIndex].gameState));
     games[gameIndex].player2Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:2', games[gameIndex].gameState));
 
+
+    // et on remet à jour la vue
     updateDecks(gameIndex);
     updateChoices(gameIndex);
     updateGrid(gameIndex);
